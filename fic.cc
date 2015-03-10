@@ -87,12 +87,12 @@ int fic::sign(const struct stat *st, const string &what, const string &fname, co
 		return build_error("sign: Only regular files may be signed.");
 
 	const EVP_MD *type = NULL;
-	if (md == "sha512")
-		type = EVP_sha512();
-	else if (md == "sha256")
+	if (md == "sha256")
 		type = EVP_sha256();
 	else if (md == "ripemd160")
 		type = EVP_ripemd160();
+	else
+		type = EVP_sha512();
 
 	EVP_MD_CTX md_ctx;
 	EVP_MD_CTX_init(&md_ctx);
@@ -183,12 +183,12 @@ int fic::verify(const struct stat *st, const string &what, const string &fname, 
 		return build_error("verify: Only regular files may be verified.");
 
 	const EVP_MD *type = NULL;
-	if (md == "sha512")
-		type = EVP_sha512();
-	else if (md == "sha256")
+	if (md == "sha256")
 		type = EVP_sha256();
 	else if (md == "ripemd160")
 		type = EVP_ripemd160();
+	else
+		type = EVP_sha512();
 
 	EVP_MD_CTX md_ctx;
 	EVP_MD_CTX_init(&md_ctx);

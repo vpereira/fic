@@ -1,19 +1,28 @@
 CXX=c++
-CXXFLAGS=-std=c++11 -Wall -c -O2
+CXXFLAGS=-std=c++11 -Wall -c -O2 -fPIC -pedantic
 LIBS=-lcrypto
 
-all: openpgp.o fic.o main.o base64.o
-	$(CXX) *.o $(LIBS) -o fic
+all: fic libfic.so
+
+fic: openpgp.o fic.o main.o base64.o
+	$(CXX) $^ $(LIBS) -o $@
+
+clean:
+	rm -f *.o
 
 openpgp.o: openpgp.cc openpgp.h
-	$(CXX) $(CXXFLAGS) openpgp.cc
+	$(CXX) $(CXXFLAGS) $<
 
 fic.o: fic.cc fic.h
-	$(CXX) $(CXXFLAGS) fic.cc
+	$(CXX) $(CXXFLAGS) $<
 
 main.o: main.cc
-	$(CXX) $(CXXFLAGS) main.cc
+	$(CXX) $(CXXFLAGS) $<
 
 base64.o: base64.cc base64.h
-	$(CXX) $(CXXFLAGS) base64.cc
+	$(CXX) $(CXXFLAGS) $<
+
+libfic.so: binding.cc binding.h fic.o
+	$(CXX) $(CXXFLAGS) $<
+	$(CXX) -shared -Wl,-soname=libfic.so binding.o fic.o $(LIBS) -o $@
 
