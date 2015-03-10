@@ -57,3 +57,26 @@ You can also dump the base64 encoded signatuire by hand:
     # file: test/testfile.txt
     user.fic.content.v1.none="V2hhdD8/PyBJIGNhbnQgYmVsaWV2ZSB5b3UgZGlkIHRoYXQhCg=="
 
+
+_fic_ also allows you to convert __OpenPGP__ keys to the PEM format suitable
+for use with __OpenSSL__, by using the `-d` switch.
+_fic_ can sign single files or whole directories. Directories are traversed recursively using `nftw(3)`.
+You can also use file globs (`*.txt`) which are expanded by the shell, since _fic_ allows multiple files
+to be specified.
+
+Misc
+----
+
+In case you already have keys in your _gpg_ keyring, thats how you strip off the passphrase:
+
+    $ gpg --edit-key 0x11223344 passwd
+    $ gpg -a --export-secret-key 0x11223344
+
+Note that _fic_ is using the long format for handling key id's (64bit). Thats equivalent to use
+
+    $ gpg --list-keys --keyid-format LONG
+
+
+with _gpg_. However it is __strongly recommended__ to use dedicated keys with _fic_ and not
+your EMail key.
+
