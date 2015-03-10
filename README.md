@@ -51,14 +51,14 @@ If the file is tampered with or the signature is removed, you will see:
     $ fic -k 1122334455667788 -K foobar.pub.asc -V test
     test/testfile.txt FAILED
 
-You can also dump the base64 encoded signatuire by hand:
+You can also dump the base64 encoded signature by hand:
 
     $ getfattr -d test/testfile.txt
     # file: test/testfile.txt
     user.fic.content.v1.none="V2hhdD8/PyBJIGNhbnQgYmVsaWV2ZSB5b3UgZGlkIHRoYXQhCg=="
 
 
-_fic_ also allows you to convert __OpenPGP__ keys to the PEM format suitable
+_fic_ also allows you to convert __OpenPGP__ keys to the __PEM__ format suitable
 for use with __OpenSSL__, by using the `-d` switch.
 _fic_ can sign single files or whole directories. Directories are traversed recursively using `nftw(3)`.
 You can also use file globs (`*.txt`) which are expanded by the shell, since _fic_ allows multiple files
