@@ -3,25 +3,33 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
-struct fic_handle;
+typedef struct fic_handle fic_handle_t;
 
-fic_handle *fic_new(const char *key, const char *md, uint64_t id);
+fic_handle_t *fic_new(const char *key, const char *md, uint64_t id);
 
-int fic_verify_content(fic_handle *, const char *path);
+/* returns 1 on success */
+int fic_verify_content(fic_handle_t *, const char *path);
 
-int fic_verify_meta(fic_handle *, const char *path);
+/*returns 1 on success */
+int fic_verify_meta(fic_handle_t *, const char *path);
 
-int fic_sign_content(fic_handle *, const char *path);
+/*returns 1 on success */
+int fic_sign_content(fic_handle_t *, const char *path);
 
-int fic_sign_meta(fic_handle *, const char *path);
+/*returns 1 on success */
+int fic_sign_meta(fic_handle_t *, const char *path);
 
-void fic_destroy(fic_handle *);
+void fic_free(fic_handle_t *);
 
-const char *fic_error(fic_handle *);
+const char *fic_error(fic_handle_t *);
 
+#ifdef __cplusplus
 }
+#endif
 
 #endif
 

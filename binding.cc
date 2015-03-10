@@ -30,13 +30,13 @@ extern "C" {
 
 using namespace std;
 
-struct fic_handle {
+typedef struct fic_handle {
 	fic *f;
 	open_pgp *pgp;
 	uint64_t id;
 	string md;
 	const char *err;
-};
+} fic_handle_t;
 
 
 fic_handle *fic_new(const char *key, const char *md, uint64_t id)
@@ -138,7 +138,7 @@ int fic_sign_meta(fic_handle *fh, const char *path)
 
 }
 
-void fic_destroy(fic_handle *fh)
+void fic_free(fic_handle *fh)
 {
 	if (!fh)
 		return;

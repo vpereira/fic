@@ -22,7 +22,7 @@ main.o: main.cc
 base64.o: base64.cc base64.h
 	$(CXX) $(CXXFLAGS) $<
 
-libfic.so: binding.cc binding.h fic.o
+libfic.so: binding.cc binding.h fic.o base64.o openpgp.o
 	$(CXX) $(CXXFLAGS) $<
-	$(CXX) -shared -Wl,-soname=libfic.so binding.o fic.o $(LIBS) -o $@
+	$(CXX) -shared -Wl,-soname=libfic.so binding.o fic.o base64.o openpgp.o $(LIBS) -o $@
 
