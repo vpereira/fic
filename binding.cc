@@ -128,13 +128,13 @@ int fic_sign_meta(fic_handle *fh, const char *path)
 		return -1;
 
 	fh->err = "";
-	EVP_PKEY *key = fh->pgp->find_pkey(fh->id);
+	EVP_PKEY *key = fh->pgp->find_skey(fh->id);
 	if (!key) {
 		fh->err = "Invalid key ID for signing.";
 		return -1;
 	}
 	fh->f->key(key);
-	return fh->f->sign_content(NULL, path, fh->md);
+	return fh->f->sign_meta(NULL, path, fh->md);
 
 }
 
