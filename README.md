@@ -1,14 +1,12 @@
-File Integrity Checker
-======================
+fic(1) --  File Integrity Checker
+====
 
-About
------
+## Description
 
 _fic_ allows to cryptographically sign and verify files (content and meta data) using
 __OpenPGP__ or __opmsg__ keys and __POSIX__ extended file attributes `(xattrs)`.
 
-Install
--------
+## Install
 
     $ make
 
@@ -27,8 +25,7 @@ at [opmsg](http://github.com/stealth/opmsg) on how to generate new personas. You
 use the pub and priv keys of that persona for verifying or signing with _fic_.
 
 
-Usage
------
+## Usage
 
 Lets see which keys can be used from a GPG key:
 
@@ -75,8 +72,7 @@ _fic_ can sign single files or whole directories. Directories are traversed recu
 You can also use file globs (`*.txt`) which are expanded by the shell, since _fic_ allows multiple files
 to be specified.
 
-Misc
-----
+## Misc
 
 In case you already have keys in your _gpg_ keyring, thats how you strip off the passphrase:
 
