@@ -2,7 +2,7 @@
  * This file is part of the fic, the file integrity checker.
  *
  * (C) 2014 by Sebastian Krahmer,
- *             krahmer [at] suse [dot] de
+ *             krahmer [at] suse [dot] com
  *
  * fic is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * along with fic.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __opengpg_h__
-#define __openpgp_h__
+#ifndef fic_openpgp_h
+#define fic_openpgp_h
 
 #include <iostream>
 #include <cstddef>

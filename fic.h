@@ -18,8 +18,8 @@
  * along with fic.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __fic_h__
-#define __fic_h__
+#ifndef fic_fic_h
+#define fic_fic_h
 
 #include <string>
 #include <cerrno>

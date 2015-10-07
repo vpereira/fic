@@ -1,5 +1,5 @@
-#ifndef __binding_h__
-#define __binding_h__
+#ifndef fic_binding_h
+#define fic_binding_h
 
 #include <stdint.h>
 

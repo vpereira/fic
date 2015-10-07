@@ -2,7 +2,7 @@
  * This file is part of the fic, the file integrity checker.
  *
  * (C) 2015 by Sebastian Krahmer,
- *             krahmer [at] suse [dot] de
+ *             krahmer [at] suse [dot] com
  *
  * fic is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
