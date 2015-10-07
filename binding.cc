@@ -28,18 +28,38 @@
 
 extern "C" {
 
+#include <openssl/pem.h>
+#include <openssl/evp.h>
+
 using namespace std;
 
-typedef struct fic_handle {
+struct fic_handle {
 	fic *f;
+	EVP_PKEY *pubkey, *privkey;
 	open_pgp *pgp;
 	uint64_t id;
 	string md;
 	const char *err;
-} fic_handle_t;
+
+	fic_handle() : f(NULL), pubkey(NULL), privkey(NULL), pgp(NULL), id(0), md(""), err(NULL)
+	{}
+
+	~fic_handle()
+	{
+		delete f;
+		if (pgp)
+			delete pgp;
+		else {
+			EVP_PKEY_free(pubkey);
+			EVP_PKEY_free(privkey);
+		}
+	}
+};
+
+typedef struct fic_handle fic_handle_t;
 
 
-fic_handle *fic_new(const char *key, const char *md, uint64_t id)
+fic_handle *fic_new(const char *keyfile, const char *md, uint64_t id)
 {
 	fic_handle *fh = new (nothrow) fic_handle;
 
@@ -51,16 +71,26 @@ fic_handle *fic_new(const char *key, const char *md, uint64_t id)
 		return NULL;
 	}
 
-	if (!(fh->pgp = new (nothrow) open_pgp)) {
-		delete fh->f;
-		delete fh;
-		return NULL;
+	if (id) {
+		if (!(fh->pgp = new (nothrow) open_pgp)) {
+			delete fh;
+			return NULL;
+		}
+		if (fh->pgp->add_keys(keyfile) == 0) {
+			fh->pubkey = fh->pgp->find_pkey(id);	// only shallow copy, so we need to keep pgp object
+			fh->privkey = fh->pgp->find_skey(id);
+		}
+	} else {
+		FILE *f = fopen(keyfile, "r");
+		if (f) {
+			fh->pubkey = PEM_read_PUBKEY(f, NULL, NULL, NULL);
+			rewind(f);
+			fh->privkey = PEM_read_PrivateKey(f, NULL, NULL, NULL);
+			fclose(f);
+		}
 	}
 
-
-	if (fh->pgp->add_keys(key) != 0) {
-		delete fh->pgp;
-		delete fh->f;
+	if (!fh->pubkey && !fh->privkey) {
 		delete fh;
 		return NULL;
 	}
@@ -70,7 +100,6 @@ fic_handle *fic_new(const char *key, const char *md, uint64_t id)
 	fh->err = "";
 
 	return fh;
-
 }
 
 
@@ -80,12 +109,11 @@ int fic_verify_content(fic_handle *fh, const char *path)
 		return -1;
 
 	fh->err = "";
-	EVP_PKEY *key = fh->pgp->find_pkey(fh->id);
-	if (!key) {
+	if (!fh->pubkey) {
 		fh->err = "Invalid key ID for verifying.";
 		return -1;
 	}
-	fh->f->key(key);
+	fh->f->key(fh->pubkey);
 	return fh->f->verify_content(NULL, path, fh->md);
 }
 
@@ -96,12 +124,11 @@ int fic_verify_meta(fic_handle *fh, const char *path)
 		return -1;
 
 	fh->err = "";
-	EVP_PKEY *key = fh->pgp->find_pkey(fh->id);
-	if (!key) {
+	if (!fh->pubkey) {
 		fh->err = "Invalid key ID for verifying.";
 		return -1;
 	}
-	fh->f->key(key);
+	fh->f->key(fh->pubkey);
 	return fh->f->verify_meta(NULL, path, fh->md);
 
 }
@@ -112,12 +139,11 @@ int fic_sign_content(fic_handle *fh, const char *path)
 		return -1;
 
 	fh->err = "";
-	EVP_PKEY *key = fh->pgp->find_skey(fh->id);
-	if (!key) {
+	if (!fh->privkey) {
 		fh->err = "Invalid key ID for signing.";
 		return -1;
 	}
-	fh->f->key(key);
+	fh->f->key(fh->privkey);
 	return fh->f->sign_content(NULL, path, fh->md);
 
 }
@@ -128,23 +154,17 @@ int fic_sign_meta(fic_handle *fh, const char *path)
 		return -1;
 
 	fh->err = "";
-	EVP_PKEY *key = fh->pgp->find_skey(fh->id);
-	if (!key) {
+	if (!fh->privkey) {
 		fh->err = "Invalid key ID for signing.";
 		return -1;
 	}
-	fh->f->key(key);
+	fh->f->key(fh->privkey);
 	return fh->f->sign_meta(NULL, path, fh->md);
 
 }
 
 void fic_free(fic_handle *fh)
 {
-	if (!fh)
-		return;
-
-	delete fh->pgp;
-	delete fh->f;
 	delete fh;
 }
 
