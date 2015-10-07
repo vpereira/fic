@@ -5,7 +5,7 @@ About
 -----
 
 _fic_ allows to cryptographically sign and verify files (content and meta data) using
-__OpenPGP__ keys and __POSIX__ extended file attributes `(xattrs)`.
+__OpenPGP__ or __opmsg__ keys and __POSIX__ extended file attributes `(xattrs)`.
 
 Install
 -------
@@ -22,19 +22,30 @@ probably want to create a dedicated key for signing your files, just leave the p
 Thats not a security risk, since in most cases you will throw away the secret key after signing
 anyway and only keep the public key in place for later verification.
 
+In case you use `opmsg` personas, the keys are already in PEM format. Please refer to the docu
+at [opmsg](http://github.com/stealth/opmsg) on how to generate new personas. You may simply
+use the pub and priv keys of that persona for verifying or signing with _fic_.
+
 
 Usage
 -----
 
-Lets see which keys can be used:
+Lets see which keys can be used from a GPG key:
 
     $ fic -i -K foobar.sec.asc
     1122334455667788
 
-Thats your key id. There may be multiple key id's if you have a large keyblob.
-Sign a file:
+Thats your key id. There may be multiple key id's if you have a large keyblob. If you are using `opmsg`
+persona keys, just omit the `-k` argument, as there is only one key.
+
+Sign a file with a gpg key:
 
     $ fic -k 1122334455667788 -K foobar.sec.asc -S test
+    test/testfile.txt SIGNED
+
+or in opmsg case:
+
+    $ fic -K foobar.priv.pem -S test
     test/testfile.txt SIGNED
 
 This will sign all files in the `test` dir recursively. You can also sign single files. Actually this signs

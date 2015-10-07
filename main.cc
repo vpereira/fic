@@ -19,6 +19,7 @@
  */
 
 #include <ftw.h>
+#include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
 #include <string>
@@ -29,6 +30,7 @@
 
 extern "C" {
 #include <openssl/evp.h>
+#include <openssl/pem.h>
 }
 
 
@@ -115,6 +117,7 @@ using namespace global;
 int main(int argc, char **argv)
 {
 	uint64_t keyid = 0;
+	bool has_keyid = 0;
 
 	int c = 0;
 	string keyfile = "";
@@ -138,6 +141,7 @@ int main(int argc, char **argv)
 			break;
 		case 'k':
 			keyid = strtoull(optarg, NULL, 16);
+			has_keyid = 1;
 			break;
 		case 'K':
 			keyfile = optarg;
@@ -167,28 +171,47 @@ int main(int argc, char **argv)
 
 	open_pgp pgpkey;
 
-	if (op & OP_PRINT_KEYID)
-		pgpkey.print_id(1);
+	if (has_keyid || (op & OP_PRINT_KEYS)) {
+		if (op & OP_PRINT_KEYID)
+			pgpkey.print_id(1);
 
-	if (pgpkey.add_keys(keyfile) < 0) {
-		cerr<<pgpkey.why()<<endl;
-		return 1;
+		if (pgpkey.add_keys(keyfile) < 0) {
+			cerr<<pgpkey.why()<<endl;
+			return 1;
+		}
+
+		if (op & OP_PRINT_KEYS)
+			cout<<pgpkey.as_pem()<<endl;
 	}
 
-	if (op & OP_PRINT_KEYS)
-		cout<<pgpkey.as_pem()<<endl;
-
-	checker = new (nothrow) fic;
+	if ((checker = new (nothrow) fic) == NULL) {
+		cerr<<"OOM";
+		return 2;
+	}
 
 	if (op & OP_PRINT_SIG)
 		checker->dryrun(1);
 
 	EVP_PKEY *k = NULL;
-	if (op & OP_SIGN_MASK)
+
+	// handle as native PEM file if no keyid given
+	if (!has_keyid && (op & OP_SIGN_MASK)) {
+		FILE *f = fopen(keyfile.c_str(), "r");
+		if (f) {
+			k = PEM_read_PrivateKey(f, NULL, NULL, NULL);
+			fclose(f);
+		}
+	} else if (!has_keyid && (op & OP_VRFY_MASK)) {
+		FILE *f = fopen(keyfile.c_str(), "r");
+		if (f) {
+			k = PEM_read_PUBKEY(f, NULL, NULL, NULL);
+			fclose(f);
+		}
+	} else if (op & OP_SIGN_MASK) {
 		k = pgpkey.find_skey(keyid);
-	else if (op & OP_VRFY_MASK)
+	} else if (op & OP_VRFY_MASK) {
 		k = pgpkey.find_pkey(keyid);
-	else {
+	} else {
 		delete checker;
 		return 0;
 	}
@@ -207,6 +230,10 @@ int main(int argc, char **argv)
 	}
 
 	delete checker;
+
+	if (!has_keyid)
+		EVP_PKEY_free(k);
+
 	return r;
 }
 
